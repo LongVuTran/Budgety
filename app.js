@@ -151,6 +151,25 @@ var UIController = (function() {
         expensesPercLabel: '.item__percentage'
     };
 
+    var formatNumber = function(num, type) {
+        var numSplit, int, dec;
+
+        num = Math.abs(num);
+        num = num.toFixed(2);
+
+        numSplit = num.split('.');
+
+        int = numSplit[0];
+        if (int.length > 3) {
+            int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, int.length);
+        }
+
+        dec = numSplit[1];
+
+        return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
+
+    };
+
     return {
         getInput: function() {
             return {
@@ -177,7 +196,7 @@ var UIController = (function() {
             // Replace the placeholder text with some actual data
             newHTMl = html.replace('%id%', obj.id);
             newHTML = newHTMl.replace('%description%', obj.description);
-            newHTML = newHTML.replace('%value%', obj.value);
+            newHTML = newHTML.replace('%value%', formatNumber(obj.value, type));
 
             // Insert the HTMl into the DOM
             document.querySelector(element).insertAdjacentHTML('beforeend', newHTML);
@@ -203,9 +222,12 @@ var UIController = (function() {
         },
 
         displayBudget: function(ojb) {
-            document.querySelector(DOMString.budgetLabel).textContent = ojb.budget;
-            document.querySelector(DOMString.incomeLabel).textContent = ojb.totalInc;
-            document.querySelector(DOMString.expensesLabel).textContent = ojb.totalExp;
+            var type;
+            ojb.budget > 0 ? type = 'inc' : type = 'exp';
+
+            document.querySelector(DOMString.budgetLabel).textContent = formatNumber(ojb.budget, type);
+            document.querySelector(DOMString.incomeLabel).textContent = formatNumber(ojb.totalInc, 'inc');
+            document.querySelector(DOMString.expensesLabel).textContent = formatNumber(ojb.totalExp, 'exp');
 
             if (ojb.percentage > 0) {
                 document.querySelector(DOMString.percentageLabel).textContent = ojb.percentage + '%';
@@ -232,6 +254,8 @@ var UIController = (function() {
                 }
             });
         },
+
+
 
         getDOMString: function() {
             return DOMString;
